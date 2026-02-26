@@ -1,0 +1,36 @@
+diff --git a/src/user-service.ts b/src/user-service.ts
+index abc1234..def5678 100644
+--- a/src/user-service.ts
++++ b/src/user-service.ts
+@@ -1,10 +1,25 @@
+ import express from "express";
++import { authenticate, authorize } from "./middleware/auth";
++import { logger } from "./utils/logger";
++import { z } from "zod";
+
+ const router = express.Router();
+
+-router.get("/api/users/:id", async (req, res) => {
+-  const user = await db.getUser(req.params.id);
+-  res.json(user);
++const getUserSchema = z.object({
++  id: z.string().uuid(),
++});
++
++router.get("/api/users/:id", authenticate, authorize("user.read"), async (req, res) => {
++  const { id } = getUserSchema.parse(req.params);
++  const user = await db.getUser(id);
++  logger.info("User accessed", { userId: id, accessedBy: req.auth.userId });
++  res.json({
++    id: user.id,
++    name: user.name,
++    // Sensitive fields excluded from response
++  });
+ });
+
++router.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
++  logger.error("Request failed", { error: err.message, stack: err.stack });
++  res.status(500).json({ error: "Internal server error" });
++});
++
+ export default router;

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fabric IQ — Compliance Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/recharts@2/umd/Recharts.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const {
+      LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+      XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+    } = Recharts;
+
+    const API_BASE = window.location.origin;
+
+    function App() {
+      const [summary, setSummary] = useState(null);
+      const [trends, setTrends] = useState([]);
+      const [reviews, setReviews] = useState([]);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        Promise.all([
+          fetch(`${API_BASE}/api/fabriciq/dashboard`).then(r => r.json()),
+          fetch(`${API_BASE}/api/fabriciq/trends`).then(r => r.json()),
+          fetch(`${API_BASE}/api/fabriciq/reviews?limit=10`).then(r => r.json()),
+        ]).then(([sum, trd, rev]) => {
+          setSummary(sum);
+          setTrends(trd);
+          setReviews(rev.reviews);
+          setLoading(false);
+        });
+      }, []);
+
+      if (loading) return <div className="loading">Loading compliance data...</div>;
+
+      const scoreClass = summary.average_score >= 90 ? 'green'
+        : summary.average_score >= 70 ? 'yellow' : 'red';
+
+      const pieData = Object.entries(summary.reviews_by_framework).map(([name, value]) => ({
+        name: name === 'soc2' ? 'SOC 2' : name === 'hipaa' ? 'HIPAA' : name,
+        value,
+      }));
+      const PIE_COLORS = ['#58a6ff', '#bc8cff', '#3fb950', '#d29922'];
+
+      return (
+        <div>
+          <div className="header">
+            <div>
+              <h1>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Compliance Dashboard
+                <span className="badge">Fabric IQ</span>
+              </h1>
+              <div className="subtitle">Real-time compliance monitoring across all repositories</div>
+            </div>
+            <div className="subtitle">
+              Powered by Compliance Copilot + Azure Monitor
+            </div>
+          </div>
+
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="label">Total Reviews</div>
+              <div className={`value blue`}>{summary.total_reviews}</div>
+            </div>
+            <div className="stat-card">
+              <div className="label">Average Score</div>
+              <div className={`value ${scoreClass}`}>{summary.average_score}/100</div>
+            </div>
+            <div className="stat-card">
+              <div className="label">Total Findings</div>
+              <div className="value yellow">{summary.total_findings}</div>
+            </div>
+            <div className="stat-card">
+              <div className="label">Blocking Issues</div>
+              <div className="value red">{summary.blocking_findings}</div>
+            </div>
+          </div>
+
+          <div className="charts-row">
+            <div className="chart-card">
+              <h3>Compliance Score Trend</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={trends}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
+                  <XAxis dataKey="date" stroke="#8b949e" fontSize={11} tickFormatter={d => d.slice(5)} />
+                  <YAxis domain={[0, 100]} stroke="#8b949e" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{ background: '#161b22', border: '1px solid #21262d', borderRadius: 8 }}
+                    labelStyle={{ color: '#8b949e' }}
+                  />
+                  <Line type="monotone" dataKey="score" stroke="#58a6ff" strokeWidth={2} dot={{ r: 3, fill: '#58a6ff' }} />
+                  <Line type="monotone" dataKey="findings" stroke="#d29922" strokeWidth={2} dot={{ r: 3, fill: '#d29922' }} />
+                  <Legend />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="chart-card">
+              <h3>Reviews by Framework</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={4}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {pieData.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #21262d', borderRadius: 8 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="reviews-table">
+            <h3>Recent Reviews</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Repo</th>
+                  <th>PR</th>
+                  <th>Score</th>
+                  <th>Findings</th>
+                  <th>Blocking</th>
+                  <th>Frameworks</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reviews.map((r, i) => {
+                  const sc = r.score >= 90 ? 'high' : r.score >= 70 ? 'mid' : 'low';
+                  return (
+                    <tr key={i}>
+                      <td>{r.repo}</td>
+                      <td>#{r.pr_number}</td>
+                      <td><span className={`score-badge ${sc}`}>{r.score}</span></td>
+                      <td>{r.findings_count}</td>
+                      <td style={{ color: r.blocking_count > 0 ? '#f85149' : '#3fb950' }}>
+                        {r.blocking_count}
+                      </td>
+                      <td>
+                        {r.frameworks_checked.map(f => (
+                          <span key={f} className={`framework-tag ${f}`}>
+                            {f === 'soc2' ? 'SOC 2' : f.toUpperCase()}
+                          </span>
+                        ))}
+                      </td>
+                      <td style={{ color: '#8b949e' }}>{new Date(r.timestamp).toLocaleDateString()}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "EXC-001",
+    "controlId": "CC6.7",
+    "reason": "Internal microservices on private VPC communicate over HTTP for performance. Compensating control: network isolation via Azure VNet.",
+    "approvedBy": "CISO Jane Smith",
+    "expiresAt": "2026-12-31",
+    "scope": "internal-services/*"
+  },
+  {
+    "id": "EXC-002",
+    "controlId": "CC7.1",
+    "reason": "Legacy batch processing system uses file-based logging. Migration to Azure Monitor planned for Q3 2026.",
+    "approvedBy": "VP Engineering Mike Johnson",
+    "expiresAt": "2026-09-30",
+    "scope": "batch-processor/*"
+  },
+  {
+    "id": "EXC-003",
+    "controlId": "§164.312(d)",
+    "reason": "Internal analytics dashboard accessible via SSO only (no MFA). Compensating control: IP restriction to corporate network.",
+    "approvedBy": "Compliance Officer Sarah Lee",
+    "expiresAt": "2026-06-30",
+    "scope": "analytics-dashboard/*"
+  }
+]

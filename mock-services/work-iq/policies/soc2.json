@@ -1,0 +1,131 @@
+[
+  {
+    "id": "CC6.1",
+    "name": "Logical Access Controls",
+    "description": "Systems are protected against unauthorized access through logical access security measures",
+    "framework": "soc2",
+    "category": "Access Control",
+    "severity": "high",
+    "requirements": [
+      "All user-facing endpoints must require authentication",
+      "Authorization checks must be performed before granting access to resources",
+      "Session tokens must expire after a configurable timeout period",
+      "Failed login attempts must be logged and rate-limited",
+      "Multi-factor authentication required for administrative access"
+    ]
+  },
+  {
+    "id": "CC6.2",
+    "name": "Credential Management",
+    "description": "Credentials for protected information assets are created, managed, and protected appropriately",
+    "framework": "soc2",
+    "category": "Access Control",
+    "severity": "high",
+    "requirements": [
+      "Secrets must never be hardcoded in source code",
+      "API keys and tokens must be stored in a secrets manager (e.g., Azure Key Vault)",
+      "Passwords must be hashed using bcrypt, scrypt, or Argon2",
+      "Encryption keys must be rotated according to policy (minimum annually)",
+      "Connection strings must use environment variables, not config files"
+    ]
+  },
+  {
+    "id": "CC6.3",
+    "name": "Access Restriction",
+    "description": "Access to systems and data is restricted based on need and principle of least privilege",
+    "framework": "soc2",
+    "category": "Access Control",
+    "severity": "medium",
+    "requirements": [
+      "Role-based access control (RBAC) must be implemented",
+      "Service accounts must have minimum necessary permissions",
+      "Database access must be restricted to application service accounts",
+      "Administrative functions must require elevated privileges"
+    ]
+  },
+  {
+    "id": "CC6.6",
+    "name": "External Threat Protection",
+    "description": "Systems are protected against threats from external sources",
+    "framework": "soc2",
+    "category": "Security",
+    "severity": "high",
+    "requirements": [
+      "All user input must be validated and sanitized",
+      "SQL queries must use parameterized statements",
+      "HTML output must be encoded to prevent XSS",
+      "CSRF tokens must be implemented for state-changing operations",
+      "File uploads must be validated for type and size"
+    ]
+  },
+  {
+    "id": "CC6.7",
+    "name": "Data Transmission Security",
+    "description": "Data is protected during transmission using encryption and secure protocols",
+    "framework": "soc2",
+    "category": "Encryption",
+    "severity": "high",
+    "requirements": [
+      "All external communications must use TLS 1.2 or higher",
+      "HTTP endpoints must redirect to HTTPS",
+      "API calls to external services must use HTTPS",
+      "Certificates must be valid and not self-signed in production"
+    ]
+  },
+  {
+    "id": "CC6.8",
+    "name": "Malicious Software Prevention",
+    "description": "Systems are protected against malicious software",
+    "framework": "soc2",
+    "category": "Security",
+    "severity": "medium",
+    "requirements": [
+      "Dynamic code execution (eval, new Function) must be avoided",
+      "Dependencies must be scanned for known vulnerabilities",
+      "Child process execution must be avoided or strictly controlled",
+      "User-provided file paths must be validated against directory traversal"
+    ]
+  },
+  {
+    "id": "CC7.1",
+    "name": "Security Monitoring",
+    "description": "Systems are monitored for anomalies that indicate security events",
+    "framework": "soc2",
+    "category": "Monitoring",
+    "severity": "medium",
+    "requirements": [
+      "Security-relevant events must be logged with timestamps",
+      "Logs must include actor identity, action, and resource",
+      "Error conditions must be logged with sufficient context",
+      "Log data must not contain sensitive information (PII, secrets)"
+    ]
+  },
+  {
+    "id": "CC7.2",
+    "name": "Activity Monitoring",
+    "description": "Security events are identified and logged for analysis",
+    "framework": "soc2",
+    "category": "Monitoring",
+    "severity": "medium",
+    "requirements": [
+      "Authentication events (login, logout, failure) must be logged",
+      "Data access events must be recorded in audit trails",
+      "Administrative actions must be logged with full context",
+      "Logs must be retained per organizational retention policy"
+    ]
+  },
+  {
+    "id": "CC8.1",
+    "name": "Change Management",
+    "description": "Changes to infrastructure and software are authorized, designed, developed, and implemented in a controlled manner",
+    "framework": "soc2",
+    "category": "Change Management",
+    "severity": "medium",
+    "requirements": [
+      "All code changes must go through pull request review",
+      "Database schema changes must be versioned and reversible",
+      "Configuration changes must be tracked and auditable",
+      "Deployments must follow the organization's CI/CD pipeline"
+    ]
+  }
+]

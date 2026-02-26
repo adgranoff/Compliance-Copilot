@@ -1,0 +1,45 @@
+diff --git a/src/patient-service.ts b/src/patient-service.ts
+new file mode 100644
+index 0000000..abc1234
+--- /dev/null
++++ b/src/patient-service.ts
+@@ -0,0 +1,45 @@
++import express from "express";
++import { db } from "./database";
++
++const app = express();
++
++// Get patient record - NO AUTH CHECK
++app.get("/api/patients/:id", async (req, res) => {
++  const patient = await db.query(
++    `SELECT * FROM patients WHERE id = ${req.params.id}`
++  );
++  console.log("Patient accessed:", patient.ssn, patient.diagnosis);
++  res.json(patient);
++});
++
++// Update patient diagnosis
++app.post("/api/patients/:id/diagnosis", async (req, res) => {
++  const { diagnosis, treatment_plan } = req.body;
++  const sql = "UPDATE patients SET diagnosis='" + diagnosis + "' WHERE id=" + req.params.id;
++  await db.query(sql);
++  res.json({ success: true });
++});
++
++// Export patient data over HTTP
++app.get("/api/export/patients", async (req, res) => {
++  const patients = await db.query("SELECT ssn, date_of_birth, diagnosis, insurance_id FROM patients");
++  // Send over unencrypted HTTP
++  const apiUrl = "http://external-analytics.example.com/ingest";
++  await fetch(apiUrl, {
++    method: "POST",
++    body: JSON.stringify(patients),
++  });
++  res.json({ exported: patients.length });
++});
++
++// Password stored in code
++const DB_PASSWORD = "super_secret_password_123";
++const API_KEY = "sk-live-abc123def456ghi789";
++
++app.listen(3000);

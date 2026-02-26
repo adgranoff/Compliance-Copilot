@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "work-iq": {
+      "type": "local",
+      "command": "npx",
+      "args": ["tsx", "mock-services/work-iq/server.ts"],
+      "tools": ["*"],
+      "env": {
+        "WORK_IQ_PORT": "3001"
+      }
+    },
+    "fabric-iq": {
+      "type": "local",
+      "command": "npx",
+      "args": ["tsx", "mock-services/fabric-iq/server.ts"],
+      "tools": ["*"],
+      "env": {
+        "FABRIC_IQ_PORT": "3002"
+      }
+    }
+  }
+}

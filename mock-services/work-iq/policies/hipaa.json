@@ -1,0 +1,102 @@
+[
+  {
+    "id": "§164.312(a)(1)",
+    "name": "Access Control",
+    "description": "Implement technical policies and procedures for electronic information systems that maintain ePHI to allow access only to authorized persons or software programs",
+    "framework": "hipaa",
+    "category": "Technical Safeguards",
+    "severity": "high",
+    "requirements": [
+      "Unique user identification required for all ePHI system access",
+      "Emergency access procedure must be documented and implemented",
+      "Automatic logoff after configurable period of inactivity",
+      "Encryption and decryption mechanisms for ePHI at rest",
+      "Access to ePHI must be logged and auditable"
+    ]
+  },
+  {
+    "id": "§164.312(b)",
+    "name": "Audit Controls",
+    "description": "Implement hardware, software, and/or procedural mechanisms to record and examine activity in information systems that contain or use ePHI",
+    "framework": "hipaa",
+    "category": "Technical Safeguards",
+    "severity": "high",
+    "requirements": [
+      "All access to ePHI must generate audit log entries",
+      "Audit logs must include who, what, when, where, and why",
+      "Audit logs must be tamper-evident and stored securely",
+      "Regular review of audit logs must be performed",
+      "Audit log retention minimum 6 years per HIPAA requirements"
+    ]
+  },
+  {
+    "id": "§164.312(c)(1)",
+    "name": "Integrity Controls",
+    "description": "Implement policies and procedures to protect ePHI from improper alteration or destruction",
+    "framework": "hipaa",
+    "category": "Technical Safeguards",
+    "severity": "high",
+    "requirements": [
+      "Electronic mechanisms to corroborate that ePHI has not been altered or destroyed",
+      "Data integrity checks (checksums, hashes) for stored ePHI",
+      "Database constraints to prevent invalid data states",
+      "Backup and recovery procedures for ePHI data"
+    ]
+  },
+  {
+    "id": "§164.312(d)",
+    "name": "Person or Entity Authentication",
+    "description": "Implement procedures to verify that a person or entity seeking access to ePHI is the one claimed",
+    "framework": "hipaa",
+    "category": "Technical Safeguards",
+    "severity": "high",
+    "requirements": [
+      "Multi-factor authentication for ePHI system access",
+      "Identity verification before granting access to ePHI",
+      "Service-to-service authentication using mutual TLS or API keys",
+      "Password complexity requirements enforced programmatically"
+    ]
+  },
+  {
+    "id": "§164.312(e)(1)",
+    "name": "Transmission Security",
+    "description": "Implement technical security measures to guard against unauthorized access to ePHI being transmitted over electronic communications networks",
+    "framework": "hipaa",
+    "category": "Technical Safeguards",
+    "severity": "high",
+    "requirements": [
+      "ePHI must be encrypted during electronic transmission (TLS 1.2+)",
+      "Integrity controls for transmitted ePHI",
+      "VPN or equivalent protection for remote access to ePHI",
+      "Email containing ePHI must be encrypted"
+    ]
+  },
+  {
+    "id": "§164.308(a)(5)",
+    "name": "Security Awareness and Training",
+    "description": "Implement a security awareness and training program for all members of the workforce",
+    "framework": "hipaa",
+    "category": "Administrative Safeguards",
+    "severity": "medium",
+    "requirements": [
+      "Security reminders provided to workforce regularly",
+      "Procedures for guarding against, detecting, and reporting malicious software",
+      "Login monitoring procedures implemented",
+      "Password management training and enforcement"
+    ]
+  },
+  {
+    "id": "§164.308(a)(1)",
+    "name": "Risk Analysis",
+    "description": "Conduct an accurate and thorough assessment of the potential risks and vulnerabilities to the confidentiality, integrity, and availability of ePHI",
+    "framework": "hipaa",
+    "category": "Administrative Safeguards",
+    "severity": "high",
+    "requirements": [
+      "Regular risk assessments of systems handling ePHI",
+      "Documented risk mitigation strategies",
+      "Vulnerability scanning and penetration testing",
+      "Risk assessment updates when significant changes occur"
+    ]
+  }
+]

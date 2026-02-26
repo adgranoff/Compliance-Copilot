@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  compliance-copilot:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - WORK_IQ_URL=http://work-iq:3001
+      - FABRIC_IQ_URL=http://fabric-iq:3002
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
+    depends_on:
+      work-iq:
+        condition: service_healthy
+      fabric-iq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r => process.exit(r.ok ? 0 : 1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  work-iq:
+    build: .
+    command: ["node", "dist/mock-services/work-iq/server.js"]
+    ports:
+      - "3001:3001"
+    environment:
+      - WORK_IQ_PORT=3001
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r => process.exit(r.ok ? 0 : 1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  fabric-iq:
+    build: .
+    command: ["node", "dist/mock-services/fabric-iq/server.js"]
+    ports:
+      - "3002:3002"
+    environment:
+      - FABRIC_IQ_PORT=3002
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3002/health').then(r => process.exit(r.ok ? 0 : 1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
