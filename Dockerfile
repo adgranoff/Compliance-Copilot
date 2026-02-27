@@ -7,13 +7,22 @@ COPY src/ src/
 COPY mock-services/ mock-services/
 RUN npx tsc
 
-FROM node:20-slim
+# Production image: Compliance Copilot agent only
+FROM node:20-slim AS app
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
-COPY --from=builder /app/dist/ dist/
-COPY mock-services/work-iq/policies/ mock-services/work-iq/policies/
-COPY mock-services/fabric-iq/dashboard/ mock-services/fabric-iq/dashboard/
+COPY --from=builder /app/dist/src/ dist/src/
 EXPOSE 3000
 CMD ["node", "dist/src/index.js"]
+
+# Mock services image: Work IQ + Fabric IQ stubs (local dev / demo only)
+FROM node:20-slim AS mocks
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist/mock-services/ dist/mock-services/
+COPY mock-services/work-iq/policies/ mock-services/work-iq/policies/
+COPY mock-services/fabric-iq/dashboard/ mock-services/fabric-iq/dashboard/

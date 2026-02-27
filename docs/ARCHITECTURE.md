@@ -2,11 +2,42 @@
 
 ## System Overview
 
-Compliance Copilot is built on three pillars:
+Compliance Copilot is a **single deployable agent** that integrates with two external SaaS platforms and multiple Azure services:
 
-1. **GitHub Copilot SDK** — Provides the AI reasoning engine with custom tool execution
-2. **Work IQ** — Enterprise policy management (organizational compliance controls, exceptions)
-3. **Fabric IQ** — Audit trail and compliance dashboard (review records, trends, reporting)
+```
+                    ┌──────────────────┐
+                    │     GitHub       │
+                    │  (webhooks, API) │
+                    └────────┬─────────┘
+                             │
+                ┌────────────▼────────────┐
+                │   Compliance Copilot    │
+                │   (Express + Copilot    │
+                │    SDK Agent)           │
+                │                         │
+                │   Azure Container Apps  │
+                └──┬──────────┬────────┬──┘
+                   │          │        │
+          ┌────────▼───┐ ┌───▼──────┐ ├──────────────────┐
+          │  Work IQ   │ │ Fabric IQ│ │  Azure Services   │
+          │  (SaaS)    │ │ (SaaS)   │ │  ┌─────────────┐  │
+          │            │ │          │ │  │ Entra ID    │  │
+          │ Policy     │ │ Audit    │ │  │ Key Vault   │  │
+          │ management │ │ trail &  │ │  │ Purview     │  │
+          │ & controls │ │ dashboard│ │  │ Monitor     │  │
+          └────────────┘ └──────────┘ │  └─────────────┘  │
+                                      └──────────────────┘
+```
+
+| Pillar | Role | Integration |
+|--------|------|-------------|
+| **GitHub Copilot SDK** | AI reasoning engine with custom tool execution | Embedded in the agent |
+| **Work IQ** | Enterprise policy management (compliance controls, exceptions) | External SaaS — HTTP API via `WORK_IQ_URL` |
+| **Fabric IQ** | Audit trail and compliance dashboard (review records, trends) | External SaaS — HTTP API via `FABRIC_IQ_URL` |
+
+The Compliance Copilot is the only artifact you build and deploy. Work IQ and Fabric IQ are external services accessed over HTTP — the agent connects to them via URL configuration (`WORK_IQ_URL`, `FABRIC_IQ_URL`).
+
+For local development and demo purposes, mock implementations of Work IQ and Fabric IQ are provided in `mock-services/` and run as separate containers via Docker Compose.
 
 ## Component Architecture
 
@@ -40,40 +71,26 @@ The agent autonomously decides which tools to call based on the PR content. This
 - **comment-formatter.ts** — Generates structured markdown review comments with severity icons, framework badges, and remediation guidance
 
 ### Integration Clients (`src/integrations/`)
-- **work-iq-client.ts** — HTTP client for Work IQ policy API
-- **fabric-iq-client.ts** — HTTP client for Fabric IQ audit API
+- **work-iq-client.ts** — HTTP client for Work IQ policy API (external SaaS)
+- **fabric-iq-client.ts** — HTTP client for Fabric IQ audit API (external SaaS)
 - **azure-mocks.ts** — In-process stubs for Azure Purview (data classification), Entra ID (authentication), Key Vault (secrets), and Monitor (telemetry)
 
-## Azure Integration Architecture
+## External Service Integration
 
-### Production Deployment on Azure
+### Work IQ and Fabric IQ
 
-```
-┌─────────────────────────────────────────────────────┐
-│                 Azure Container Apps                 │
-│  ┌──────────────┐  ┌────────────┐  ┌─────────────┐ │
-│  │ Compliance    │  │ Work IQ    │  │ Fabric IQ   │ │
-│  │ Copilot       │  │ Service    │  │ Service     │ │
-│  │ (main agent)  │  │ (policies) │  │ (audit)     │ │
-│  └──────┬───────┘  └─────┬──────┘  └──────┬──────┘ │
-│         │                │                 │         │
-└─────────┼────────────────┼─────────────────┼─────────┘
-          │                │                 │
-    ┌─────┴──────┐   ┌────┴─────┐    ┌─────┴──────┐
-    │ Entra ID   │   │ Azure    │    │ Azure      │
-    │ (auth/SSO) │   │ Key Vault│    │ Monitor    │
-    └────────────┘   │ (secrets)│    │ (telemetry)│
-                     └──────────┘    └────────────┘
-                           │
-                     ┌─────┴──────┐
-                     │ Azure      │
-                     │ Purview    │
-                     │ (data      │
-                     │  classify) │
-                     └────────────┘
-```
+Work IQ and Fabric IQ are **external SaaS platforms** — not components you deploy. The Compliance Copilot connects to them over HTTP, configured via environment variables:
 
-### Azure Services Used
+| Service | Config | API Base |
+|---------|--------|----------|
+| Work IQ | `WORK_IQ_URL` | `/api/workiq/policies`, `/api/workiq/exceptions`, `/api/workiq/search` |
+| Fabric IQ | `FABRIC_IQ_URL` | `/api/fabriciq/audit`, `/api/fabriciq/dashboard`, `/api/fabriciq/trends` |
+
+For demo and local development, mock implementations (`mock-services/`) replicate the same API contracts as the production SaaS. These run as separate containers in Docker Compose and are **not** bundled into the Compliance Copilot image.
+
+To switch from mocks to production: set `WORK_IQ_URL` and `FABRIC_IQ_URL` to the real SaaS endpoints. No code changes required.
+
+### Azure Services
 
 | Service | Purpose | Current State | Production Swap |
 |---------|---------|---------------|-----------------|
@@ -83,13 +100,24 @@ The agent autonomously decides which tools to call based on the PR content. This
 | **Monitor** | Telemetry and alerting | Console logging | Application Insights SDK |
 | **Container Apps** | Deployment and scaling | Docker Compose | Azure CLI / Bicep deployment |
 
-### Mock vs. Production API Contracts
-
-All mock services implement the same API contracts as the production services. To swap to production:
+To swap Azure mocks to production:
 
 1. Set Azure environment variables (see `env.example`)
 2. Replace `azure-mocks.ts` imports with Azure SDK calls
-3. Point `WORK_IQ_URL` and `FABRIC_IQ_URL` to production endpoints
+
+## Docker Architecture
+
+The Dockerfile uses multi-stage builds to produce separate images:
+
+- **`app` target** — The Compliance Copilot agent. Contains only the Express server, agent code, and integration clients. This is what you deploy.
+- **`mocks` target** — Work IQ and Fabric IQ mock servers. Used only for local development and demos.
+
+```yaml
+# docker-compose.yml
+compliance-copilot:    # builds target: app
+work-iq:               # builds target: mocks (different CMD)
+fabric-iq:             # builds target: mocks (different CMD)
+```
 
 ## Data Flow
 
@@ -100,13 +128,13 @@ All mock services implement the same API contracts as the production services. T
 4. Agent calls tools autonomously:
    a. fetch_pr_diff → reads changed files
    b. classify_sensitive_data → identifies PII/PHI
-   c. query_compliance_policies → gets applicable controls
-   d. get_org_exceptions → checks for approved exceptions
-   e. store_audit_record → records findings in Fabric IQ
+   c. query_compliance_policies → gets applicable controls (Work IQ)
+   d. get_org_exceptions → checks for approved exceptions (Work IQ)
+   e. store_audit_record → records findings (Fabric IQ)
 5. Agent returns structured JSON review
 6. Server formats review as markdown comment
 7. Comment posted to PR via GitHub API
-8. Dashboard updated with new audit record
+8. Dashboard updated with new audit record (Fabric IQ)
 ```
 
 ## Security Model

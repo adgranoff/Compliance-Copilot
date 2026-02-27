@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   compliance-copilot:
-    build: .
+    build:
+      context: .
+      target: app
     ports:
       - "3000:3000"
     environment:
@@ -24,7 +26,9 @@ services:
       retries: 3
 
   work-iq:
-    build: .
+    build:
+      context: .
+      target: mocks
     command: ["node", "dist/mock-services/work-iq/server.js"]
     ports:
       - "3001:3001"
@@ -37,7 +41,9 @@ services:
       retries: 3
 
   fabric-iq:
-    build: .
+    build:
+      context: .
+      target: mocks
     command: ["node", "dist/mock-services/fabric-iq/server.js"]
     ports:
       - "3002:3002"
