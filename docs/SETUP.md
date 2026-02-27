@@ -125,10 +125,12 @@ az containerapp compose create \
 
 | Service | Configuration |
 |---------|--------------|
+| Agent 365 | Register the agent in Microsoft Admin Center with an Entra Agent ID |
 | Entra ID | Set `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` |
 | Key Vault | Set `AZURE_KEY_VAULT_URL`, store secrets in vault |
 | Monitor | Set `AZURE_MONITOR_CONNECTION_STRING` |
 | Purview | Configure data catalog for PHI/PII classification |
+| Defender | Enable Defender for Cloud on the Container Apps environment |
 
 ## Running Tests
 

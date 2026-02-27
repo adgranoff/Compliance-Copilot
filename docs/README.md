@@ -1,6 +1,6 @@
 # Compliance Copilot
 
-> AI-powered compliance review for pull requests — powered by GitHub Copilot SDK, Work IQ, and Fabric IQ.
+> AI-powered compliance review for pull requests — powered by GitHub Copilot SDK, Work IQ, Fabric IQ, and managed via Microsoft Agent 365.
 
 ## The Problem
 
@@ -38,6 +38,11 @@ This creates a painful tradeoff: ship fast and risk violations, or review thorou
 
 ```mermaid
 graph TB
+    subgraph "Microsoft Agent 365 (Control Plane)"
+        Registry[Agent Registry & Guardrails]
+        SecurityPosture[Security & Compliance Audit]
+    end
+
     subgraph "GitHub"
         PR[Pull Request] -->|webhook| Server
     end
@@ -52,7 +57,7 @@ graph TB
         Agent -->|query policies| WIQ[Work IQ]
         Agent -->|store audit| FIQ[Fabric IQ]
         FIQ -->|dashboard| Dashboard[Compliance Dashboard]
-        FoundryIQ[Foundry IQ] -.->|agent governance| Agent
+        FoundryIQ[Foundry IQ] -.->|agent testing| Agent
     end
 
     subgraph "Azure Services"
@@ -63,6 +68,8 @@ graph TB
         AOAI[Azure OpenAI] -.->|LLM inference| Agent
     end
 
+    Registry -.->|governs| Agent
+    SecurityPosture -.->|monitors| Agent
     Agent -->|post comment| PR
 ```
 

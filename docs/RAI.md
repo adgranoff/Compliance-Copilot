@@ -53,6 +53,17 @@ Compliance Copilot is designed as an **advisory tool**, not an enforcement mecha
 - Confidence level and remediation guidance are provided for all findings
 - The system prompt and tool definitions are open source and auditable
 
+## Agent Governance via Microsoft Agent 365
+
+In production, the Compliance Copilot is registered in [Microsoft Agent 365](https://www.microsoft.com/en-us/microsoft-agent-365) — the enterprise control plane for AI agents. Agent 365 provides:
+
+- **IT-defined guardrails** — Standard policy templates ensure the agent starts secure; IT admins control who can deploy and configure it
+- **Access governance** — Least-privilege enforcement limits the agent to only the GitHub repos, Work IQ endpoints, and Fabric IQ endpoints it needs
+- **Content safety** — Built-in controls detect, retain, and investigate unethical or harmful agent interactions
+- **Runtime defense** — AI-powered intelligence blocks prompt injection attacks, malicious traffic, and prevents data exfiltration from risky agent behavior in real time
+- **Security posture** — Defender integration identifies attack paths from the agent to critical assets and remediates misconfigurations
+- **Compliance audit** — All agent interactions are logged for regulatory compliance, with detailed reporting at the incident level
+
 ## Incident Response
 
 If the AI produces harmful, incorrect, or misleading compliance guidance:
@@ -60,6 +71,7 @@ If the AI produces harmful, incorrect, or misleading compliance guidance:
 2. Incorrect findings can be documented as organizational exceptions
 3. Pattern definitions can be updated to reduce false positives
 4. The system prompt can be refined to improve accuracy
+5. Agent 365 provides a complete audit trail of all agent interactions for investigation
 
 ## Continuous Improvement
 

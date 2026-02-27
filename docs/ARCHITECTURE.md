@@ -5,41 +5,44 @@
 Compliance Copilot is a **single deployable agent** that integrates with external Microsoft SaaS platforms and Azure services to deliver end-to-end compliance automation:
 
 ```
-                         ┌──────────────────┐
-                         │     GitHub       │
-                         │  (webhooks, API) │
-                         └────────┬─────────┘
-                                  │
-             ┌────────────────────▼────────────────────┐
-             │         Compliance Copilot               │
-             │    (Express + GitHub Copilot SDK Agent)   │
-             │                                          │
-             │         Azure Container Apps             │
-             └──┬──────┬──────┬──────┬──────┬──────┬───┘
-                │      │      │      │      │      │
-       ┌────────▼──┐ ┌─▼────────┐ ┌─▼──────────┐ ┌▼───────────┐
-       │  Work IQ  │ │ Fabric IQ│ │ Foundry IQ  │ │   Azure    │
-       │  (SaaS)   │ │ (SaaS)   │ │ (SaaS)      │ │  Services  │
-       │           │ │          │ │             │ │            │
-       │ Policies  │ │ Audit &  │ │ Agent build │ │ Entra ID   │
-       │ Controls  │ │ Dashboard│ │ & govern    │ │ Key Vault  │
-       │ Exceptions│ │ Trends   │ │             │ │ Purview    │
-       └───────────┘ └──────────┘ └─────────────┘ │ Monitor    │
-                                                   │ Defender   │
-                                                   │ OpenAI     │
-                                                   │ Policy     │
-                                                   │ Event Grid │
-                                                   └────────────┘
+                    ┌───────────────────────────────────────────┐
+                    │         Microsoft Agent 365                │
+                    │     (Control plane for all agents)         │
+                    │  Registry · Guardrails · Security · Audit  │
+                    └────────┬──────────────────────┬────────────┘
+                             │  governs             │  secures
+                         ┌───▼──────────────────┐   │
+    ┌──────────────┐     │  Compliance Copilot  │   │
+    │   GitHub     │────▶│  (Copilot SDK Agent) │   │
+    │  (webhooks)  │     │                      │   │
+    └──────────────┘     │  Azure Container Apps│   │
+                         └──┬──────┬─────┬──────┘   │
+                            │      │     │          │
+                   ┌────────▼──┐ ┌─▼───────┐ ┌─────▼──────────┐
+                   │  Work IQ  │ │Fabric IQ│ │ Azure Services  │
+                   │  (SaaS)   │ │(SaaS)   │ │                 │
+                   │           │ │         │ │ Entra ID        │
+                   │ Policies  │ │ Audit & │ │ Key Vault       │
+                   │ Controls  │ │Dashboard│ │ Purview         │
+                   │ Exceptions│ │ Trends  │ │ Monitor         │
+                   └───────────┘ └─────────┘ │ Defender        │
+                                             │ Azure OpenAI    │
+                                             │ Azure Policy    │
+                                             │ Event Grid      │
+                                             └─────────────────┘
 ```
 
 | Pillar | Role | Integration |
 |--------|------|-------------|
+| **Microsoft Agent 365** | Control plane — registry, guardrails, security, and audit for all agents | Governs the Compliance Copilot agent lifecycle |
 | **GitHub Copilot SDK** | AI reasoning engine with custom tool execution | Embedded in the agent |
 | **Work IQ** | Enterprise policy management (compliance controls, exceptions) | External SaaS — HTTP API via `WORK_IQ_URL` |
 | **Fabric IQ** | Audit trail and compliance dashboard (review records, trends) | External SaaS — HTTP API via `FABRIC_IQ_URL` |
 | **Foundry IQ** | Agent building, testing, and governance for Copilot extensions | Agent lifecycle management |
 
-The Compliance Copilot is the only artifact you build and deploy. Work IQ, Fabric IQ, and Foundry IQ are external Microsoft services — the agent connects to them via URL configuration or SDK integration.
+The Compliance Copilot is the only artifact you build and deploy. In production, it is registered in **Microsoft Agent 365** — the enterprise control plane that provides a unified registry, IT-defined guardrails, access governance, and security posture management for all AI agents across the organization. Agent 365 extends familiar Microsoft management and security tools (Entra ID, Defender, Purview) with purpose-built capabilities for agents.
+
+Work IQ, Fabric IQ, and Foundry IQ are external Microsoft services — the agent connects to them via URL configuration or SDK integration. For local development and demo purposes, mock implementations of Work IQ and Fabric IQ are provided in `mock-services/` and run as separate containers via Docker Compose.
 
 For local development and demo purposes, mock implementations of Work IQ and Fabric IQ are provided in `mock-services/` and run as separate containers via Docker Compose.
 
@@ -80,6 +83,23 @@ The agent autonomously decides which tools to call based on the PR content. This
 - **azure-mocks.ts** — In-process stubs for Azure Purview (data classification), Entra ID (authentication), Key Vault (secrets), and Monitor (telemetry)
 
 ## Microsoft Service Integrations
+
+### Microsoft Agent 365 — Control Plane
+
+[Microsoft Agent 365](https://www.microsoft.com/en-us/microsoft-agent-365) is the **enterprise control plane for AI agents**. It extends the infrastructure organizations already use for managing users — Entra ID, Defender, Purview, Admin Center — with purpose-built capabilities for agents.
+
+In production, the Compliance Copilot is registered in Agent 365, which provides:
+
+- **Agent registry** — The Compliance Copilot appears in the organization's centralized agent inventory alongside all other AI agents, with an Entra Agent ID for identity management
+- **Agent store** — Users discover and deploy the Compliance Copilot through familiar workflows in Microsoft 365 Copilot and Teams
+- **IT-defined guardrails** — IT admins set policies for who can deploy, configure, and manage the Compliance Copilot. Standard policy templates ensure the agent starts secure
+- **Access governance** — Least-privilege enforcement ensures the agent only accesses the GitHub repos, Work IQ endpoints, and Fabric IQ endpoints it needs
+- **Compliance & audit** — All agent interactions are logged with content safety controls to detect, retain, and investigate agent behavior
+- **Security posture** — Defender identifies attack paths from the agent to critical assets, remediates misconfigurations, and provides runtime defense against prompt injection and data exfiltration
+- **Performance measurement** — Track agent speed, review quality, and ROI across the organization
+- **Work IQ integration** — Agent 365 natively connects agents with Work IQ, enabling the Compliance Copilot to access organizational data, context, and relationships
+
+Agent 365 is the natural management layer for any Copilot SDK agent deployed at enterprise scale. It answers the question: "How do we govern 50 AI agents across the organization?" — with the same tools IT already uses for managing users.
 
 ### Work IQ — Policy Management
 
@@ -129,6 +149,7 @@ Foundry IQ provides agent building, testing, and governance capabilities for Cop
 ┌─────────────────────┬───────────────┬──────────────────────────────┐
 │ Service             │ Demo State    │ Production Path              │
 ├─────────────────────┼───────────────┼──────────────────────────────┤
+│ Agent 365           │ Documented    │ Register via Admin Center    │
 │ Work IQ             │ Mock server   │ Point WORK_IQ_URL to SaaS   │
 │ Fabric IQ           │ Mock server   │ Point FABRIC_IQ_URL to SaaS │
 │ Foundry IQ          │ Documented    │ Agent governance SDK         │
@@ -146,7 +167,7 @@ Foundry IQ provides agent building, testing, and governance capabilities for Cop
 
 **Implemented + runnable:** Work IQ, Fabric IQ, Entra ID, Key Vault, Purview, Monitor, Azure OpenAI (BYOK), Container Apps
 
-**Documented with clear production path:** Foundry IQ, Defender for Cloud, Azure Policy, Event Grid, GitHub Actions
+**Documented with clear production path:** Agent 365, Foundry IQ, Defender for Cloud, Azure Policy, Event Grid, GitHub Actions
 
 ### Swapping Mocks to Production
 
@@ -216,7 +237,7 @@ fabric-iq:             # builds target: mocks (different CMD)
 - **Least privilege**: GitHub token scoped to minimum required permissions
 - **Audit trail**: All reviews recorded in Fabric IQ with full context
 - **Security posture**: Defender for Cloud monitors the Container Apps environment for vulnerabilities and misconfigurations
-- **Agent governance**: Foundry IQ enforces guardrails on agent behavior and tool access
+- **Agent governance**: Agent 365 provides IT-defined guardrails, access governance, and runtime defense (prompt injection, data exfiltration) for the Compliance Copilot agent
 
 ## Scaling Considerations
 
