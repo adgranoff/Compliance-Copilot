@@ -32,6 +32,9 @@ Open the compliance dashboard at `http://localhost:3002/dashboard`
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical deep dive, Azure integration, data flow |
 | [docs/SETUP.md](docs/SETUP.md) | Prerequisites, installation, deployment guide |
 | [docs/RAI.md](docs/RAI.md) | Responsible AI considerations |
+| [docs/JUDGE-MAPPING.md](docs/JUDGE-MAPPING.md) | Rubric criterion → evidence mapping |
+| [docs/MOCK-VS-PRODUCTION.md](docs/MOCK-VS-PRODUCTION.md) | What's real vs. stubbed, production swap steps |
+| [docs/SDK-FEEDBACK.md](docs/SDK-FEEDBACK.md) | GitHub Copilot SDK feedback and lessons learned |
 | [AGENTS.md](AGENTS.md) | Agent behavior and custom instructions |
 
 ## Built With
