@@ -45,22 +45,22 @@ graph TB
     subgraph "Compliance Copilot (Azure Container Apps)"
         Server[Express Server :3000] --> Agent[Copilot SDK Agent]
         Agent -->|fetch_pr_diff| GH[GitHub API]
-        Agent -->|query_policies| WIQ[Work IQ]
         Agent -->|classify_data| Purview[Azure Purview]
-        Agent -->|get_exceptions| WIQ
-        Agent -->|store_audit| FIQ[Fabric IQ]
+    end
+
+    subgraph "Microsoft IQ Platform"
+        Agent -->|query policies| WIQ[Work IQ]
+        Agent -->|store audit| FIQ[Fabric IQ]
+        FIQ -->|dashboard| Dashboard[Compliance Dashboard]
+        FoundryIQ[Foundry IQ] -.->|agent governance| Agent
     end
 
     subgraph "Azure Services"
         Entra[Entra ID] -.->|auth| Server
         KV[Key Vault] -.->|secrets| Server
         Monitor[Azure Monitor] -.->|telemetry| Server
-    end
-
-    subgraph "Microsoft Services"
-        WIQ -->|policies| PolicyDB[(Policy Store)]
-        FIQ -->|audit records| AuditDB[(Audit Store)]
-        FIQ -->|dashboard| Dashboard[Compliance Dashboard]
+        Defender[Defender for Cloud] -.->|security posture| Agent
+        AOAI[Azure OpenAI] -.->|LLM inference| Agent
     end
 
     Agent -->|post comment| PR
