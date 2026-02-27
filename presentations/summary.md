@@ -1,0 +1,7 @@
+# Compliance Copilot — Summary
+
+Compliance Copilot is an AI-powered compliance review agent built with the GitHub Copilot SDK. It automatically reviews every pull request for SOC 2 Type II and HIPAA violations, transforming what was a 3–5 day manual process into a 30-second automated review.
+
+When a PR is opened, the Copilot SDK agent analyzes changed files using five custom tools: fetching diffs via GitHub API, querying compliance policies from Work IQ, classifying sensitive data (PII/PHI) through Azure Purview patterns, checking organizational exceptions, and storing audit records in Fabric IQ. The agent posts a structured review comment with severity ratings, specific control references, and actionable remediation guidance.
+
+A real-time Fabric IQ dashboard provides compliance trending, audit trails, and exportable reports. Designed for Azure Container Apps deployment with Entra ID authentication, Key Vault secrets management, and Monitor telemetry, Compliance Copilot delivers enterprise-grade compliance automation at scale.
