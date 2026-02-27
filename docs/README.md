@@ -149,7 +149,6 @@ See [RAI.md](./RAI.md) for our responsible AI considerations including human-in-
 - [Mock vs. Production](./MOCK-VS-PRODUCTION.md)
 - [Judge Mapping (Rubric to Evidence)](./JUDGE-MAPPING.md)
 - [Copilot SDK Feedback](./SDK-FEEDBACK.md)
-- [Customer Validation](./CUSTOMER-VALIDATION.md)
 
 ## License
 

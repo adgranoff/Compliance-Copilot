@@ -89,4 +89,4 @@ See [`docs/SDK-FEEDBACK.md`](./SDK-FEEDBACK.md) for detailed feedback filed in t
 
 ### Customer Validation (10 pts)
 
-See [`docs/CUSTOMER-VALIDATION.md`](./CUSTOMER-VALIDATION.md) for validation memo from internal compliance stakeholders.
+Not yet completed. Requires validated engagement with an internal or external customer.
