@@ -40,6 +40,4 @@ Open the compliance dashboard at `http://localhost:3002/dashboard`
 ## Built With
 
 - [GitHub Copilot SDK](https://www.npmjs.com/package/@github/copilot-sdk) — AI agent with custom compliance tools
-- [Work IQ](https://workiq.microsoft.com) — Enterprise policy management
-- [Fabric IQ](https://fabriciq.microsoft.com) — Audit trail and compliance dashboard
-- Azure Container Apps, Entra ID, Key Vault, Purview, Monitor
+
